@@ -1,20 +1,4 @@
-# We need the Heroku provider in order to create the Heroku application
-provider "heroku" {
-    email = "${var.heroku_email}"
-    api_key = "${var.heroku_api_key}"
-}
-
-# We need the AWS provider in order to create the S3 bucket
-provider "aws" {
-    access_key = "${var.aws_access_key}"
-    secret_key = "${var.aws_secret_key}"
-    region     = "${var.aws_region}"
-}
-
 # Creates the IAM key for write access to the S3 bucket
-# We need to create the IAM users, give that user an access
-# key, and finally give that user write access to the bucket
-# with a policy
 resource "aws_iam_user" "iam_user" {
     name = "${var.app_name}-user"
 
@@ -28,8 +12,7 @@ resource "aws_iam_access_key" "iam_key" {
     user = "${aws_iam_user.iam_user.name}"
 }
 
-# Restricts the user to only the S3 bucket they should
-# have access to
+# Restricts the user to only the S3 bucket they should have access to
 resource "aws_iam_user_policy" "policy" {
   # We concatenate the user name with the policy to ensure that
   # the policy name is unique, but still recognizable
@@ -54,6 +37,7 @@ EOF
 
 resource "aws_s3_bucket" "aws_bucket_static" {
     bucket = "${var.s3_bucket}"
+    region = "${var.s3_region}"
     acl    = "private"
 
     tags {
@@ -69,23 +53,4 @@ resource "aws_s3_bucket" "aws_bucket_static" {
         max_age_seconds = 3000
         allowed_headers = ["*"]
     }
-}
-
-# Creates the primary Heroku application.
-resource "heroku_app" "default" {
-    name = "${var.app_name}-${var.app_environment}"
-    region = "${var.heroku_app_region}"
-
-    config_vars = {
-        APP_DEBUG = "${var.app_debug}"
-        APP_URL = "${var.app_url}"
-        AWS_ACCESS_KEY = "${aws_iam_access_key.iam_key.id}"
-        AWS_SECRET_KEY = "${aws_iam_access_key.iam_key.secret}"
-        S3_BUCKET = "${var.s3_bucket}"
-        S3_REGION = "${var.aws_region}"
-    }
-
-    buildpacks = [
-        "heroku/python"
-    ]
 }
