@@ -1,18 +1,22 @@
-# Creates the primary Heroku application.
 resource "heroku_app" "default" {
-    name = "${var.app_name}"
-    region = "${var.app_region}"
+  name   = "${var.app_name}"
+  region = "${var.app_region}"
 
-    config_vars = {
-        APP_DEBUG       = "${var.app_debug}"
-        APP_ENVIRONMENT = "${var.app_environment}"
-        S3_ACCESS_KEY   = "${var.s3_access_key}"
-        S3_SECRET_KEY   = "${var.s3_secret_key}"
-        S3_BUCKET       = "${var.s3_bucket}"
-        S3_REGION       = "${var.s3_region}"
-    }
+  config_vars = {
+    APP_DEBUG             = "${var.app_debug}"
+    APP_ENVIRONMENT       = "${var.app_environment}"
+    AWS_ACCESS_KEY_ID     = "${var.s3_access_key}"
+    AWS_SECRET_ACCESS_KEY = "${var.s3_secret_key}"
+    BUCKET_NAME           = "${var.s3_bucket}"
+    CLOUDFRONT_DOMAIN     = "${var.cdn_domain}"
+  }
 
-    buildpacks = [
-        "heroku/python"
-    ]
+  buildpacks = [
+    "heroku/python"
+  ]
+}
+
+resource "heroku_addon" "papertrail" {
+  app  = "${heroku_app.default.name}"
+  plan = "papertrail:fixa"
 }

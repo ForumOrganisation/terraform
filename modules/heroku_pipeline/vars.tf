@@ -1,0 +1,1 @@
+variable "pipeline_name" {}

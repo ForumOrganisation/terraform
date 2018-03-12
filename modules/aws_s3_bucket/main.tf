@@ -1,6 +1,6 @@
-# Creates the IAM key for write access to the S3 bucket
-resource "aws_iam_user" "iam_user" {
-    name = "${var.app_name}-user"
+# Creates the IAM key
+resource "aws_iam_user" "default" {
+    name = "${var.app_name}-${var.app_environment}"
 
     # You cannot tag a user, but you can give them a path
     # to help identify the context of the user
@@ -8,16 +8,16 @@ resource "aws_iam_user" "iam_user" {
 }
 
 # Creates the API key for the user
-resource "aws_iam_access_key" "iam_key" {
-    user = "${aws_iam_user.iam_user.name}"
+resource "aws_iam_access_key" "default" {
+    user = "${aws_iam_user.default.name}"
 }
 
 # Restricts the user to only the S3 bucket they should have access to
-resource "aws_iam_user_policy" "policy" {
+resource "aws_iam_user_policy" "default" {
   # We concatenate the user name with the policy to ensure that
   # the policy name is unique, but still recognizable
-  name = "${aws_iam_user.iam_user.name}-policy"
-  user = "${aws_iam_user.iam_user.name}"
+  name = "${aws_iam_user.default.name}-policy"
+  user = "${aws_iam_user.default.name}"
 
   policy = <<EOF
 {
@@ -35,22 +35,12 @@ resource "aws_iam_user_policy" "policy" {
 EOF
 }
 
-resource "aws_s3_bucket" "aws_bucket_static" {
+resource "aws_s3_bucket" "default" {
     bucket = "${var.s3_bucket}"
-    region = "${var.s3_region}"
     acl    = "private"
 
     tags {
         Name        = "${var.app_name}"
         Environment = "${var.app_environment}"
-    }
-
-    acl    = "public-read"
-
-    cors_rule {
-        allowed_origins = ["*"]
-        allowed_methods = ["GET"]
-        max_age_seconds = 3000
-        allowed_headers = ["*"]
     }
 }

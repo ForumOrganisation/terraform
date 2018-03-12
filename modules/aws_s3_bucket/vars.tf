@@ -1,4 +1,3 @@
 variable "app_name" {}
 variable "app_environment" {}
 variable "s3_bucket" {}
-variable "s3_region" {}
