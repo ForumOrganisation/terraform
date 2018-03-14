@@ -33,6 +33,7 @@ module "cdn_staging" {
   source          = "./modules/aws_cdn"
 
   app_name        = "${var.app_name}"
+  domain_name     = "${module.heroku_staging.hostname}"
   app_environment = "staging"
 }
 
@@ -58,6 +59,14 @@ module "heroku_staging" {
   cdn_domain      = "${module.cdn_staging.domain_name}"
 }
 
+module "papertrail" {
+  source     = "./modules/heroku_addon"
+
+  # Addon settings
+  app_name   = "${module.heroku_staging.name}"
+  addon_plan = "papertrail:fixa"
+}
+
 #####################################
 ########## PRODUCTION ENV ###########
 #####################################
@@ -66,6 +75,8 @@ module "cdn_prod" {
   source          = "./modules/aws_cdn"
 
   app_name        = "${var.app_name}"
+  # served behind Heroku Custom Domain
+  domain_name     = "${module.custom_domain.hostname}"
   app_environment = "prod"
 }
 
@@ -89,6 +100,21 @@ module "heroku_prod" {
   s3_access_key   = "${module.s3_prod.access_key}"
   s3_secret_key   = "${module.s3_prod.secret_key}"
   cdn_domain      = "${module.cdn_prod.domain_name}"
+}
+
+module "papertrail_attachment" {
+  source   = "./modules/heroku_addon_attachment"
+
+  app_id   = "${module.heroku_prod.id}"
+  addon_id = "${module.papertrail.id}"
+  name = "PAPERTRAIL"
+}
+
+module "custom_domain" {
+  source   = "./modules/heroku_domain"
+
+  app_name = "${module.heroku_prod.name}"
+  hostname = "${var.app_url}"
 }
 
 #####################################

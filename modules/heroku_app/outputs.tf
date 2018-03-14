@@ -1,6 +1,9 @@
+output "id" {
+  value = "${heroku_app.default.id}"
+}
 output "name" {
   value = "${heroku_app.default.name}"
 }
-output "vars" {
-  value = "${heroku_app.default.all_config_vars}"
+output "hostname" {
+  value = "${heroku_app.default.heroku_hostname}"
 }

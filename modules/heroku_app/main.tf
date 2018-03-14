@@ -11,12 +11,4 @@ resource "heroku_app" "default" {
     CLOUDFRONT_DOMAIN     = "${var.cdn_domain}"
   }
 
-  buildpacks = [
-    "heroku/python"
-  ]
-}
-
-resource "heroku_addon" "papertrail" {
-  app  = "${heroku_app.default.name}"
-  plan = "papertrail:fixa"
 }

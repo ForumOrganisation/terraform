@@ -1,16 +1,6 @@
-resource "aws_s3_bucket" "default" {
-  bucket = "${var.app_name}-cdn-${var.app_environment}"
-  acl    = "private"
-
-  tags {
-    Name = "${var.app_name}"
-    Environment = "${var.app_environment}"
-  }
-}
-
 resource "aws_cloudfront_distribution" "default" {
   origin {
-    domain_name = "${aws_s3_bucket.default.bucket_domain_name}"
+    domain_name = "${var.domain_name}"
     origin_id   = "${var.app_name}-${var.app_environment}"
   }
 
