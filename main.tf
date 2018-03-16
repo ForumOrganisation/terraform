@@ -33,7 +33,8 @@ module "cdn_staging" {
   source          = "./modules/aws_cdn"
 
   app_name        = "${var.app_name}"
-  domain_name     = "${module.heroku_staging.hostname}"
+  # hard-coded madness
+  domain_name     = "${var.app_name}-staging.herokuapp.com"
   app_environment = "staging"
 }
 
@@ -42,7 +43,7 @@ module "s3_staging" {
 
   app_name        = "${var.app_name}"
   app_environment = "staging"
-  s3_bucket = "${var.app_name}-staging"
+  s3_bucket = "${var.app_name}-dev"
 }
 
 module "heroku_staging" {
@@ -75,8 +76,7 @@ module "cdn_prod" {
   source          = "./modules/aws_cdn"
 
   app_name        = "${var.app_name}"
-  # served behind Heroku Custom Domain
-  domain_name     = "${module.custom_domain.hostname}"
+  domain_name     = "${var.app_url}"
   app_environment = "prod"
 }
 
@@ -85,7 +85,7 @@ module "s3_prod" {
 
   app_name        = "${var.app_name}"
   app_environment = "prod"
-  s3_bucket = "${var.app_name}-prod"
+  s3_bucket = "${var.app_name}"
 }
 
 module "heroku_prod" {
